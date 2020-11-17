@@ -26,7 +26,7 @@ class CreateTasksTable extends Migration
             $table->integer('category')->default(1)->unsigned(); // The user who created this task
             $table->foreign('category')->references('id')->on('task_category');
             $table->string('title');
-            $table->text('description')->default('');
+            $table->text('description')->nullable();
             $table->json('amount');
             $table->string('status')->default('pending');
             $table->timestamps();
