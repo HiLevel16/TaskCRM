@@ -97,7 +97,7 @@ class TaskController extends Controller
 
         $message = isset($request->id) ? 'The task was successfully updated' : 'The task was successfully created';
 
-        return Redirect::back()->with('success', $message)->header('Cache-Control', 'no-store, no-cache, must-revalidate');
+        return Redirect::back()->with('success', $message);
     }
 
     private function proccessValidatePostTask(Request $request, $validator)
