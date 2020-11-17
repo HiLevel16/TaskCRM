@@ -29,7 +29,7 @@ class TaskController extends Controller
     {
         $userProjects = Auth::user()->getProjects()->get();
         $paymentSystems = PaymentSystem::get();
-        $taskStatus = TaskStatus::class;
+        $taskStatusClass = TaskStatus::class;
         $categories = TaskCategory::get();
 
         $paginateCount = 15;
@@ -43,7 +43,7 @@ class TaskController extends Controller
             'tasks' => $tasks,
             'userProjects' => $userProjects,
             'paymentSystems' => $paymentSystems,
-            'taskStatus' => $taskStatus,
+            'taskStatus' => $taskStatusClass,
             'categories' => $categories
         ]);
     }

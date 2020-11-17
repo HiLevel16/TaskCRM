@@ -8,7 +8,7 @@
                         @if(($task->id == \Illuminate\Support\Facades\Auth::id()
                         && \Illuminate\Support\Facades\Auth::user()->hasPermission('edit_own_task'))
                         || (\Illuminate\Support\Facades\Auth::user()->hasPermission('edit_all_task')))
-                        <a href="{{route('edit_task', ['id' => $task->id])}}">
+                        <a href="{{route('task.edit', ['id' => $task->id])}}">
                             <i class="fa fa-edit"></i>
                         </a>
                         @endif

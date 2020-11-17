@@ -27,7 +27,14 @@ class Task extends Model
 
     public static function getUsersTasks($userId, $parameters = [])
     {
-        $status = isset($parameters['status']) ? $parameters['status'] : TaskStatus::Pending();
+        $status = '';
+        if (isset($parameters['status']) && $parameters['status'] !== 'all') {
+            $status = TaskStatus::fromKey($parameters['status']);
+        } elseif ($parameters['status'] == 'all') {
+            $status = $parameters['status'];
+        } else {
+            $status = TaskStatus::Pending();
+        }
         $order = isset($parameters['order']) ? $parameters['order'] : ['key' => 'created_at', 'order' => 'asc'];
         $user = User::find($userId);
 
