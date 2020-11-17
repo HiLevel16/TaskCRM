@@ -81,12 +81,12 @@
                     </div>
                 @endforeach
             @endif
-            @if(session('success'))
+            @if(Session::has('success'))
                 <div class="container mt-1">
                     <div class="row">
                         <div class="col-md-12 col-md-offset-1">
                             <div class="alert alert-success" role="alert">
-                                {{ session('success') }}
+                                {{ Session::get('success') }}
                             </div>
                         </div>
                     </div>

@@ -10,6 +10,7 @@ use App\PaymentSystems;
 use App\TaskCategory;
 use App\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use \Validator;
 use Illuminate\Http\Request;
@@ -45,18 +46,6 @@ class TaskController extends Controller
             'taskStatus' => $taskStatus,
             'categories' => $categories
         ]);
-    }
-
-    public function project(Request $request)
-    {
-        if (Project::isUserAMember(Auth::user()->id, $request->projectId)) {
-            $tasks = Task::where('projectId', $request->projectId)->paginate(15);
-            return view('tasks.tasks', [
-                'tasks' => $tasks
-            ]);
-        } else {
-            return 'You don\'t have permission to view the page';
-        }
     }
 
     public function pageAdd()

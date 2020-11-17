@@ -75,7 +75,6 @@ class Task extends Model
         $task->paymentSystemId = $request->payment_type;
         $task->title = $request->title;
         $task->description = $request->description;
-        $task->fromId = Auth::user()->id;
         $task->amount = $currencies;
         $task->status = $taskStatus->key;
         $task->category = $request->category;
