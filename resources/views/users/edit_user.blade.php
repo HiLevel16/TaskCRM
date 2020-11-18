@@ -4,11 +4,12 @@
 <div class="row mt-1">
     <div class="col-md-12 col-md-offset-1">
         <div class="card">
-            <form method="POST" action="{{ route('edit_user_post') }}">
+            <form method="POST" action="{{ route('user.editPost') }}">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="id" value="{{ $user->id }}">
                 <table style="margin-bottom: 0" class="table table-striped task-table">
                     <thead>
-                        <th>Create a user</th>
+                        <th>Edit a user</th>
                         <th>&nbsp;</th>
                     </thead>
                     <tbody>
@@ -17,7 +18,7 @@
                               <div>Name</div>
                             </td>
                             <td>
-                              <input name="name" type="text" class="form-control" placeholder="Username" value="{{session('name') ?? ''}}">
+                              <input name="name" type="text" class="form-control" placeholder="Username" value="{{$user->name}}">
                             </td>
                         </tr>
                         <tr>
@@ -25,15 +26,15 @@
                               <div>E-mail</div>
                             </td>
                             <td>
-                              <input name="email" type="text" class="form-control" placeholder="Email" value="{{session('email') ?? ''}}">
+                              <input name="email" type="text" class="form-control" placeholder="Email" value="{{$user->email}}">
                             </td>
                         </tr>
                         <tr>
                             <td class="align-middle">
-                              <div>Password</div>
+                              <div>New password</div>
                             </td>
                             <td>
-                              <input name="password" type="password" class="form-control" value="{{session('password') ?? ''}}">
+                              <input name="password" type="password" class="form-control">
                             </td>
                         </tr>
                         <tr>
@@ -43,7 +44,7 @@
                             <td>
                                 <div class="btn-group">
                                   <button id="role_dropdown" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    {{$roles[0]->name}}
+                                    {{$user->linkedRole->name}}
                                   </button>
                                   <div class="dropdown-menu">
                                       @foreach($roles as $role)
@@ -51,7 +52,7 @@
                                       @endforeach
                                   </div>
                                 </div>
-                                <input id="role" type="hidden" name="role" value="{{$roles[0]->id}}">
+                                <input id="role" type="hidden" name="role" value="{{$user->linkedRole->id}}">
                             </td>
                         </tr>
                         <tr>
@@ -62,7 +63,7 @@
                                 <div class="overflow-auto" style="max-height: 80px">
                                     @foreach($projects as $project)
                                         <div class="custom-control custom-checkbox ml-2">
-                                          <input name="projects[]" {{session('projects') != null ? (in_array($project->id, session('projects')) ? 'checked' : '') : ''}} type="checkbox" value="{{$project->id}}" class="custom-control-input" id="{{$project->id}}">
+                                          <input name="projects[]" {{$user->hasProject($project->id) ? 'checked' : ''}} type="checkbox" value="{{$project->id}}" class="custom-control-input" id="{{$project->id}}">
                                           <label class="custom-control-label" for="{{$project->id}}">{{$project->name}}</label>
                                         </div>
                                     @endforeach
@@ -71,7 +72,7 @@
                         </tr>
                         <tr>
                             <td>
-                                <input type="submit" class="btn btn-primary" value="Create">
+                                <input type="submit" class="btn btn-primary" value="Update">
                             </td>
                             <td>
                             </td>

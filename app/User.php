@@ -55,7 +55,7 @@ class User extends Authenticatable
 
     public function hasPermission($permission)
     {
-        if ($this->roles->permissions->contains('slug', $permission))
+        if ($this->linkedRole->permissions->contains('slug', $permission))
             return true;
 
         return false;
@@ -94,7 +94,9 @@ class User extends Authenticatable
 
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->password = Hash::make($request->password);
+        if (isset($request->password)) {
+            $user->password = Hash::make($request->password);
+        }
         $user->role = $request->role;
 
         $projects = [];

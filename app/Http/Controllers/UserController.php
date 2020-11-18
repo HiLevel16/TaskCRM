@@ -14,6 +14,8 @@ class UserController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('hasPermission:create_user')->only(['pageAdd', 'addUser']);
+        $this->middleware('hasPermission:edit_user')->only(['pageEdit', 'editUser']);
     }
 
     public function index()
@@ -36,15 +38,30 @@ class UserController extends Controller
         ]);
     }
 
-    public function pageEdit()
+    public function pageEdit(Request $request)
     {
         $projects = Project::all();
         $roles = Role::get();
+        $user = User::find($request->id);
+        $userProjects = $user->getProjects();
 
-        return view('users.add_user', [
+
+        return view('users.edit_user', [
             'projects' => $projects,
-            'roles' => $roles
+            'roles' => $roles,
+            'user' => $user,
+            'userProjects' => $userProjects
         ]);
+    }
+
+    public function addUser(Request $request)
+    {
+        return $this->storeUser($request);
+    }
+
+    public function editUser(Request $request)
+    {
+        return $this->storeUser($request);
     }
 
     public function storeUser(Request $request)

@@ -1,6 +1,6 @@
 <div class="row">
     @foreach($tasks as $task)
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <div class="card border-secondary mb-3" style="max-width: 18rem;">
                 <div class="card-header d-inline">
                     <div class="float-left">{{$task->status}}</div>

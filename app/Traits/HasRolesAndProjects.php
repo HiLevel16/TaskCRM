@@ -18,9 +18,9 @@ trait HasRolesAndProjects
     }
 
     /**
-     * User's roles
+     * User's role
      */
-    public function roles()
+    public function linkedRole()
     {
         return $this->belongsTo(Role::class, 'role');
     }

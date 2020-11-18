@@ -38,8 +38,9 @@ Route::name('task.')->group(function () {
 Route::name('user.')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('list');
     Route::get('/users/add', [UserController::class, 'pageAdd'])->name('add');
-    Route::post('/users/addPost', [UserController::class, 'storeUser'])->name('addPost');
-    Route::post('/users/editPost', [UserController::class, 'storeUser'])->name('editPost');
+    Route::get('/users/edit/{id}', [UserController::class, 'pageEdit'])->name('edit');
+    Route::post('/users/addPost', [UserController::class, 'addUser'])->name('addPost');
+    Route::post('/users/editPost', [UserController::class, 'editUser'])->name('editPost');
 });
 
 
