@@ -7,7 +7,9 @@ use App\Role;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -16,15 +18,36 @@ class UserController extends Controller
         $this->middleware('auth');
         $this->middleware('hasPermission:create_user')->only(['pageAdd', 'addUser']);
         $this->middleware('hasPermission:edit_user')->only(['pageEdit', 'editUser']);
+        $this->middleware('hasPermission:delete_user')->only(['delete']);
     }
 
     public function index()
     {
-         $users = User::where('id', '!=', Auth::user()->id)->get();
+         $users = User::where('id', '!=', Auth::user()->id)->paginate(15);
 
-         return view('users', [
+         return view('users.users', [
              'users' => $users
          ]);
+    }
+
+    public function delete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return Redirect::back()->withErrors($validator);
+        }
+
+        $user = User::find($request->id);
+        if ($user) {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            $user->delete();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        }
+
+        return Redirect::back()->with('success', 'User was successfully deleted');
     }
 
     public function pageAdd()

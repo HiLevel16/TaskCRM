@@ -104,10 +104,13 @@ class User extends Authenticatable
         DB::beginTransaction();
 
         $user->save();
-        foreach ($request->projects as $project) {
-            $projects[] = Project::find($project);
+        if ($request->projects) {
+            foreach ($request->projects as $project) {
+                $projects[] = Project::find($project);
+            }
+            $user->projects()->saveMany($projects);
         }
-        $user->projects()->saveMany($projects);
+
 
         DB::commit();
 

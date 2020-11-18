@@ -41,6 +41,7 @@ Route::name('user.')->group(function () {
     Route::get('/users/edit/{id}', [UserController::class, 'pageEdit'])->name('edit');
     Route::post('/users/addPost', [UserController::class, 'addUser'])->name('addPost');
     Route::post('/users/editPost', [UserController::class, 'editUser'])->name('editPost');
+    Route::delete('/users/delete', [UserController::class, 'delete'])->name('delete');
 });
 
 
