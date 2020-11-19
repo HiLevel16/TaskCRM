@@ -113,6 +113,14 @@ class User extends Authenticatable
 
     }
 
+    public function deleteUser()
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('task_show_user')->where('userId', $this->id)->delete();
+        $this->delete();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+    }
+
 
 
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Permission;
 use App\Role;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
@@ -80,7 +81,15 @@ class RoleController extends Controller
      */
     public function delete(Request $request)
     {
-
+        $users = User::where('role', $request->id);
+        if ($users->count() > 0) {
+            return Redirect::back()->withErrors('Could\'nt delete role because some users have it');
+        }
+        $role = Role::find($request->id);
+        if ($role) {
+            $role->deleteRole();
+        }
+        return Redirect::back()->with('success', 'Role was successfully deleted');
     }
 
     /**

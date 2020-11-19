@@ -42,9 +42,7 @@ class UserController extends Controller
 
         $user = User::find($request->id);
         if ($user) {
-            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-            $user->delete();
-            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            $user->deleteUser();
         }
 
         return Redirect::back()->with('success', 'User was successfully deleted');

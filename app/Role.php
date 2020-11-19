@@ -49,4 +49,13 @@ class Role extends Model
         return $this->permissions->contains('slug', $slug);
     }
 
+    public function deleteRole()
+    {
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('permission_role')->where('roleId', $this->id)->delete();
+        $this->delete();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+    }
+
 }
