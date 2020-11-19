@@ -79,22 +79,19 @@ class UserController extends Controller
 
     public function addUser(Request $request)
     {
-        return $this->storeUser($request);
+        return $this->store($request);
     }
 
     public function editUser(Request $request)
     {
-        return $this->storeUser($request);
+        return $this->store($request);
     }
 
-    public function storeUser(Request $request)
+    private function store(Request $request)
     {
-        if (empty( $request->except('_token')))
-            return Redirect::back()->withErrors('Request is empty');
-
         $validator = User::validateRequest($request);
 
-        if (!empty($ret = $this->proccessValidateUser($request, $validator))) {
+        if (!empty($ret = $this->processValidate($request, $validator))) {
             return $ret;
         }
 
@@ -103,14 +100,12 @@ class UserController extends Controller
         return Redirect::back()->with('success', $message);
     }
 
-    private function proccessValidateUser(Request $request, $validator)
+    private function processValidate(Request $request, $validator)
     {
         if ($validator->fails()) {
             return Redirect::back()
                 ->withErrors($validator)
-                ->with('name', $request->name)
-                ->with('description', $request->description)
-                ->with('projects', $request->projects);
+                ->withInput();
         }
     }
 

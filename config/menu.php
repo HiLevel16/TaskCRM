@@ -1,11 +1,11 @@
 <?php
 return [
-    'view_user' => [
+    'view_user|create_user' => [
         [
             'label' => 'Users',
             'route' => 'user.list',
             'sub' => [
-                'add_user' => [
+                'create_user' => [
                     [
                         'label' => 'Add user',
                         'route' => 'user.add'
@@ -35,6 +35,26 @@ return [
                     [
                         'label' => 'Create task',
                         'route' => 'task.add'
+                    ]
+                ]
+            ]
+        ]
+    ],
+    'view_role|add_role' => [
+        [
+            'label' => 'Roles',
+            'route' => 'role.list',
+            'sub' => [
+                'create_role' => [
+                    [
+                        'label' => 'Create role',
+                        'route' => 'role.add'
+                    ]
+                ],
+                'view_role' => [
+                    [
+                        'label' => 'View roles',
+                        'route' => 'role.list'
                     ]
                 ]
             ]

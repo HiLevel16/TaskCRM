@@ -35,14 +35,17 @@ class PermissionsSeeder extends Seeder
             'Delete own tasks' => 'delete_own_task',
             'Delete all tasks' => 'delete_all_task',
             //Projects
+            'View projects' => 'view_project',
             'Create projects' => 'create_project',
             'Edit projects' => 'edit_project',
             'Delete projects' => 'delete_project',
             //Roles
+            'View roles' => 'view_role',
             'Create roles' => 'create_role',
             'Edit roles' => 'edit_role',
             'Delete roles' => 'delete_role',
             //Category
+            'View categories' => 'view_category',
             'Create categories' => 'create_category',
             'Edit category' => 'edit_category',
             'Delete category' => 'delete_category'

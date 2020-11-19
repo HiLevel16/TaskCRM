@@ -17,7 +17,7 @@
                               <div>Name</div>
                             </td>
                             <td>
-                              <input name="name" type="text" class="form-control" placeholder="Username" value="{{session('name') ?? ''}}">
+                              <input name="name" type="text" class="form-control" placeholder="Username" value="{{old('name') ?? ''}}">
                             </td>
                         </tr>
                         <tr>
@@ -25,7 +25,7 @@
                               <div>E-mail</div>
                             </td>
                             <td>
-                              <input name="email" type="text" class="form-control" placeholder="Email" value="{{session('email') ?? ''}}">
+                              <input name="email" type="text" class="form-control" placeholder="Email" value="{{old('email') ?? ''}}">
                             </td>
                         </tr>
                         <tr>
@@ -33,7 +33,7 @@
                               <div>Password</div>
                             </td>
                             <td>
-                              <input name="password" type="password" class="form-control" value="{{session('password') ?? ''}}">
+                              <input name="password" type="password" class="form-control">
                             </td>
                         </tr>
                         <tr>
@@ -62,7 +62,7 @@
                                 <div class="overflow-auto" style="max-height: 80px">
                                     @foreach($projects as $project)
                                         <div class="custom-control custom-checkbox ml-2">
-                                          <input name="projects[]" {{session('projects') != null ? (in_array($project->id, session('projects')) ? 'checked' : '') : ''}} type="checkbox" value="{{$project->id}}" class="custom-control-input" id="{{$project->id}}">
+                                          <input name="projects[]" {{old('projects') != null ? (in_array($project->id, old('projects')) ? 'checked' : '') : ''}} type="checkbox" value="{{$project->id}}" class="custom-control-input" id="{{$project->id}}">
                                           <label class="custom-control-label" for="{{$project->id}}">{{$project->name}}</label>
                                         </div>
                                     @endforeach

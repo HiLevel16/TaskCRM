@@ -11,6 +11,7 @@
 |
 */
 
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 
@@ -42,6 +43,15 @@ Route::name('user.')->group(function () {
     Route::post('/users/addPost', [UserController::class, 'addUser'])->name('addPost');
     Route::post('/users/editPost', [UserController::class, 'editUser'])->name('editPost');
     Route::delete('/users/delete', [UserController::class, 'delete'])->name('delete');
+});
+
+Route::name('role.')->group(function () {
+    Route::get('/roles', [RoleController::class, 'index'])->name('list');
+    Route::get('/roles/add', [RoleController::class, 'pageAdd'])->name('add');
+    Route::get('/roles/edit/{id}', [RoleController::class, 'pageEdit'])->name('edit');
+    Route::post('/roles/addPost', [RoleController::class, 'add'])->name('addPost');
+    Route::post('/roles/editPost', [RoleController::class, 'edit'])->name('editPost');
+    Route::delete('/roles/delete', [RoleController::class, 'delete'])->name('delete');
 });
 
 

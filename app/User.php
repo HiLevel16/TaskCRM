@@ -55,10 +55,7 @@ class User extends Authenticatable
 
     public function hasPermission($permission)
     {
-        if ($this->linkedRole->permissions->contains('slug', $permission))
-            return true;
-
-        return false;
+        return $this->linkedRole->permissions->contains('slug', $permission);
     }
 
     public function getTasks($status = 'all')
