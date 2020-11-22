@@ -25,16 +25,15 @@ Auth::routes([
     ]);
 
 
-//Tasks
 Route::middleware(['auth'])->group(function (){
     Route::get('/home', 'HomeController@index')->name('home');
 
     Route::name('task.')->group(function () {
-        Route::get('/tasks/{parameters?}', [TaskController::class, 'index'])->name('list');
         Route::get('/tasks/add', [TaskController::class, 'pageAdd'])->name('add');
         Route::get('/tasks/edit/{id}', [TaskController::class, 'pageEdit'])->name('edit');
         Route::post('/tasks/addTask', [TaskController::class, 'storeTask'])->name('addPost');
         Route::post('/tasks/editTask', [TaskController::class, 'storeTask'])->name('editPost');
+        Route::get('/tasks/list/{parameters?}', [TaskController::class, 'index'])->name('list');
     });
 
     Route::name('user.')->group(function () {
