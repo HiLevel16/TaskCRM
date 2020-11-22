@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Enums\TaskStatus;
 use App\Traits\HasRolesAndProjects;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
@@ -10,6 +11,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * Class User
+ * @package App
+ */
 class User extends Authenticatable
 {
     use Notifiable, HasRolesAndProjects;
@@ -32,6 +37,10 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
+    /**
+     * @param $role
+     * @return bool
+     */
     public function hasRole($role)
     {
         if ($this->roles->contains('slug', $role))
@@ -40,24 +49,36 @@ class User extends Authenticatable
         return false;
     }
 
+    /**
+     * @param $projectId
+     * @return mixed
+     */
     public function hasProject($projectId)
     {
-        if ($this->projects->contains('id', $projectId))
-            return true;
-
-        return false;
+        return $this->projects->contains('id', $projectId);
     }
 
+    /**
+     * @return mixed
+     */
     public function getProjects()
     {
         return $this->projects();
     }
 
+    /**
+     * @param $permission
+     * @return mixed
+     */
     public function hasPermission($permission)
     {
         return $this->linkedRole->permissions->contains('slug', $permission);
     }
 
+    /**
+     * @param string $status
+     * @return mixed
+     */
     public function getTasks($status = 'all')
     {
         if ($status == 'all') {
@@ -71,6 +92,10 @@ class User extends Authenticatable
         }
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
     public static function validateRequest(Request $request)
     {
         return Validator::make($request->all(), [
@@ -79,6 +104,9 @@ class User extends Authenticatable
         ]);
     }
 
+    /**
+     * @param Request $request
+     */
     public static function store(Request $request)
     {
         $user = null;
@@ -113,6 +141,9 @@ class User extends Authenticatable
 
     }
 
+    /**
+     * @throws \Exception
+     */
     public function deleteUser()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
@@ -121,6 +152,124 @@ class User extends Authenticatable
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 
+    /**
+     * Returns array of filters to display
+     * @return array
+     */
+    public function generateTaskFilterArray($input)
+    {
+
+
+        $filterArray = $this->getTaskFilterShowArray();
+        $filterArray = $this->fillTaskFilterArray($filterArray, $input);
+
+
+
+        return $filterArray;
+    }
+
+    private function getTaskFilterShowArray()
+    {
+        //Generate what to show and what not to show
+        $filterArray = [
+            'projects' => ['show' => false],
+            'users' => ['show' => false],
+            'categories' => ['show' => true],
+            'paymentSystems' => ['show' => true],
+            'statuses' => ['show' => true]
+        ];
+        if ($this->hasPermission('view_all_task')) { //if user can view everything
+            $filterArray['projects']['show'] = true;
+            $filterArray['users']['show'] = true;
+            return $filterArray;
+        }
+
+        if ($this->projects()->count() > 1)
+            $filterArray['projects'] = true;
+
+        return $filterArray;
+    }
+
+    private function fillTaskFilterArray($array, $input)
+    {
+        $array = $this->fillTaskFilterWithProjects($array, $input);
+        $array = $this->fillTaskFilterWithUsers($array, $input);
+        $array = $this->fillTaskFilterWithCategories($array, $input);
+        $array = $this->fillTaskFilterWithPaymentSystems($array, $input);
+        $array = $this->fillTaskFilterWithStatuses($array, $input);
+        return $array;
+    }
+
+    private function fillTaskFilterWithProjects($array, $input)
+    {
+        $projects = $this->getProjects()->get();
+
+        foreach ($projects as $project) {
+            $input['project'] = $project->id;
+            $array['projects']['items'][] = ['label' => $project->name, 'parameter' => $input];
+        }
+
+        unset($input['project']);
+        $array['projects']['items'][] = ['label' => 'All', 'parameter' => $input];
+        return $array;
+    }
+
+    private function fillTaskFilterWithUsers($array, $input)
+    {
+        $users = User::get();
+
+        foreach ($users as $user) {
+            $input['user'] = $user->id;
+            $array['users']['items'][] = ['label' => $user->name, 'parameter' => $input];
+        }
+
+        unset($input['user']);
+        $array['users']['items'][] = ['label' => 'All', 'parameter' => $input];
+        return $array;
+    }
+
+    private function fillTaskFilterWithCategories($array, $input)
+    {
+        $categories = TaskCategory::get();
+
+        foreach ($categories as $category) {
+            $input['category'] = $category->id;
+            $array['categories']['items'][] = ['label' => $category->name, 'parameter' => $input];
+        }
+
+        unset($input['category']);
+        $array['categories']['items'][] = ['label' => 'All', 'parameter' => $input];
+
+        return $array;
+    }
+
+    private function fillTaskFilterWithPaymentSystems($array, $input)
+    {
+        $paymentSystems = PaymentSystem::get();
+
+        foreach ($paymentSystems as $paymentSystem) {
+            $input['payment'] = $paymentSystem->id;
+            $array['paymentSystems']['items'][] = ['label' => $paymentSystem->name, 'parameter' => $input];
+        }
+        unset($input['payment']);
+        $array['paymentSystems']['items'][] = ['label' => 'All', 'parameter' => $input];
+
+        return $array;
+    }
+
+    private function fillTaskFilterWithStatuses($array, $input)
+    {
+        $statuses = TaskStatus::asArray();
+
+        foreach ($statuses as $key => $status) {
+            $input['status'] = $key;
+            $array['statuses']['items'][] = ['label' => $status, 'parameter' => $input];
+        }
+        unset($input['status']);
+        $array['statuses']['items'][] = ['label' => 'All', 'parameter' => $input];
+
+        return $array;
+    }
 
 
 }

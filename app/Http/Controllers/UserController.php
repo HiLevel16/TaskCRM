@@ -15,7 +15,6 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
         $this->middleware('hasPermission:create_user')->only(['pageAdd', 'addUser']);
         $this->middleware('hasPermission:edit_user')->only(['pageEdit', 'editUser']);
         $this->middleware('hasPermission:delete_user')->only(['delete']);
@@ -37,7 +36,7 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return Redirect::back()->withErrors($validator);
+            return back()->withErrors($validator);
         }
 
         $user = User::find($request->id);
@@ -45,7 +44,7 @@ class UserController extends Controller
             $user->deleteUser();
         }
 
-        return Redirect::back()->with('success', 'User was successfully deleted');
+        return back()->with('success', __('user.deleted'));
     }
 
     public function pageAdd()
@@ -94,8 +93,8 @@ class UserController extends Controller
         }
 
         User::store($request);
-        $message = isset($request->id) ? 'The user was successfully updated' : 'The user was successfully created';
-        return Redirect::back()->with('success', $message);
+        $message = isset($request->id) ? __('user.updated') : __('user.created');
+        return back()->with('success', $message);
     }
 
     private function processValidate(Request $request, $validator)

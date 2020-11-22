@@ -9,42 +9,31 @@ use App\Task;
 use App\PaymentSystems;
 use App\TaskCategory;
 use App\User;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redirect;
 use \Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
+    private $paginateCount;
+
     public function __construct()
     {
-        $this->middleware('auth');
         $this->middleware('hasProjects')->only(['pageAdd', 'addTask', 'pageEdit']);
         $this->middleware('hasPermission:create_task')->only(['pageAdd', 'addTask']);
+        $this->paginateCount = 15;
     }
 
-    public function index(Request $request, $taskStatus = 'all')
+    public function index(Request $request)
     {
-        $userProjects = Auth::user()->getProjects()->get();
-        $paymentSystems = PaymentSystem::get();
-        $taskStatusClass = TaskStatus::class;
-        $categories = TaskCategory::get();
-
-        $paginateCount = 15;
-
-        $parameters = [
-            'status' => $taskStatus
-        ];
-        $tasks = Task::getUsersTasks(Auth::id(), $parameters)->paginate($paginateCount);
+        $taskFilters = Auth::user()->generateTaskFilterArray($request->all());
+        $currentFilters = Task::getCurrentFilters($request);
+        $tasks = Task::getUsersTasks(Auth::id(), $request->all())->paginate($this->paginateCount);
 
         return view('tasks.tasks', [
             'tasks' => $tasks,
-            'userProjects' => $userProjects,
-            'paymentSystems' => $paymentSystems,
-            'taskStatus' => $taskStatusClass,
-            'categories' => $categories
+            'taskFilters' => $taskFilters,
+            'currentFilters' => $currentFilters
         ]);
     }
 
@@ -85,7 +74,7 @@ class TaskController extends Controller
     public function storeTask(Request $request)
     {
         if (empty( $request->except('_token')))
-            return Redirect::back()->withErrors('Request is empty');
+            return back()->withErrors(__('overall.empty_request'));
 
         $validator = Task::validateRequest($request);
 
@@ -95,22 +84,22 @@ class TaskController extends Controller
 
         Task::store($request);
 
-        $message = isset($request->id) ? 'The task was successfully updated' : 'The task was successfully created';
+        $message = isset($request->id) ? __('task.updated') : __('task.created');
 
-        return Redirect::back()->with('success', $message);
+        return back()->with('success', $message);
     }
 
     private function proccessValidatePostTask(Request $request, $validator)
     {
         if ($validator->fails()) {
-            return Redirect::back()
+            return back()
                 ->withErrors($validator)
                 ->with('title', $request->title)
                 ->with('description', $request->description);
         }
 
         if (!Auth::user()->hasProject($request->project)) {
-            return Redirect::back()
+            return back()
                 ->withErrors('You don\'t have access to this project')
                 ->with('title', $request->title)
                 ->with('description', $request->description);

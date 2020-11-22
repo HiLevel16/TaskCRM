@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Permission;
 use App\Role;
 use App\User;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
@@ -19,14 +22,13 @@ class RoleController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
         $this->middleware('hasPermission:view_role')->only(['index']);
         $this->middleware('hasPermission:edit_role')->only(['pageEdit', 'edit']);
         $this->middleware('hasPermission:create_role')->only(['pageAdd', 'add']);
     }
 
     /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return Application|Factory|View
      */
     public function index()
     {
@@ -43,6 +45,7 @@ class RoleController extends Controller
     {
         $role = Role::find($request->id);
         $permissions = Permission::get();
+
         return view('roles.edit_role', [
             'role' => $role,
             'permissions' => $permissions
@@ -83,13 +86,13 @@ class RoleController extends Controller
     {
         $users = User::where('role', $request->id);
         if ($users->count() > 0) {
-            return Redirect::back()->withErrors('Could\'nt delete role because some users have it');
+            return back()->withErrors(__('role.has_users_error'));
         }
         $role = Role::find($request->id);
         if ($role) {
             $role->deleteRole();
         }
-        return Redirect::back()->with('success', 'Role was successfully deleted');
+        return back()->with('success', __('role.deleted'));
     }
 
     /**
@@ -104,7 +107,7 @@ class RoleController extends Controller
         }
 
         Role::store($request);
-        $message = isset($request->id) ? 'The role was successfully updated' : 'The role was successfully created';
+        $message = isset($request->id) ? __('role.updated') : __('role.created');
         return Redirect::back()->with('success', $message);
     }
 
