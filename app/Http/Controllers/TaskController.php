@@ -8,7 +8,6 @@ use App\Project;
 use App\Task;
 use App\PaymentSystems;
 use App\TaskCategory;
-use App\User;
 use \Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -69,6 +68,20 @@ class TaskController extends Controller
             'paymentSystems' => $paymentSystems,
             'categories' => $categories
         ]);
+    }
+
+    public function delete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer'
+        ]);
+        if ($validator->fails()) {
+            return back()->withErrors($validator);
+        }
+        $task = Task::find($request->id);
+
+        if ($task->deleteTask())
+            return back()->with('success', __('task.deleted'));
     }
 
     public function storeTask(Request $request)

@@ -63,7 +63,11 @@ class User extends Authenticatable
      */
     public function getProjects()
     {
-        return $this->projects();
+        if ($this->hasPermission('view_project')) {
+            return new Project;
+        } else {
+            return $this->projects();
+        }
     }
 
     /**
@@ -176,7 +180,8 @@ class User extends Authenticatable
             'users' => ['show' => false],
             'categories' => ['show' => true],
             'paymentSystems' => ['show' => true],
-            'statuses' => ['show' => true]
+            'statuses' => ['show' => true],
+            'date' => ['show' => true]
         ];
         if ($this->hasPermission('view_all_task')) { //if user can view everything
             $filterArray['projects']['show'] = true;
@@ -202,15 +207,23 @@ class User extends Authenticatable
 
     private function fillTaskFilterWithProjects($array, $input)
     {
-        $projects = $this->getProjects()->get();
+        $parentProjects = $this->getProjects()->where('parent', null)->get();
 
-        foreach ($projects as $project) {
-            $input['project'] = $project->id;
-            $array['projects']['items'][] = ['label' => $project->name, 'parameter' => $input];
+        if ($parentProjects->count()) {
+            foreach ($parentProjects as $project) {
+                $array['projects']['items'][$project->id] = ['label' => $project->name, 'id' => $project->id];
+            }
         }
 
-        unset($input['project']);
-        $array['projects']['items'][] = ['label' => 'All', 'parameter' => $input];
+        $childProjects = $this->getProjects()->whereNotNull('parent')->get();
+
+        foreach ($childProjects as $project) {
+            if (isset($array['projects']['items'][$project->parent])) {
+                $array['projects']['items'][$project->parent]['child'][] = ['label' => $project->name, 'id' => $project->id];
+            } else {
+                $array['projects']['items'][$project->id] = ['label' => $project->name, 'id' => $project->id];
+            }
+        }
         return $array;
     }
 
@@ -219,12 +232,9 @@ class User extends Authenticatable
         $users = User::get();
 
         foreach ($users as $user) {
-            $input['user'] = $user->id;
-            $array['users']['items'][] = ['label' => $user->name, 'parameter' => $input];
+            $array['users']['items'][] = ['label' => $user->name, 'id' => $user->id];
         }
 
-        unset($input['user']);
-        $array['users']['items'][] = ['label' => 'All', 'parameter' => $input];
         return $array;
     }
 
@@ -233,12 +243,9 @@ class User extends Authenticatable
         $categories = TaskCategory::get();
 
         foreach ($categories as $category) {
-            $input['category'] = $category->id;
-            $array['categories']['items'][] = ['label' => $category->name, 'parameter' => $input];
+            $array['categories']['items'][] = ['label' => $category->name, 'id' => $category->id];
         }
 
-        unset($input['category']);
-        $array['categories']['items'][] = ['label' => 'All', 'parameter' => $input];
 
         return $array;
     }
@@ -248,11 +255,8 @@ class User extends Authenticatable
         $paymentSystems = PaymentSystem::get();
 
         foreach ($paymentSystems as $paymentSystem) {
-            $input['payment'] = $paymentSystem->id;
-            $array['paymentSystems']['items'][] = ['label' => $paymentSystem->name, 'parameter' => $input];
+            $array['paymentSystems']['items'][] = ['label' => $paymentSystem->name, 'id' => $paymentSystem->id];
         }
-        unset($input['payment']);
-        $array['paymentSystems']['items'][] = ['label' => 'All', 'parameter' => $input];
 
         return $array;
     }
@@ -262,11 +266,8 @@ class User extends Authenticatable
         $statuses = TaskStatus::asArray();
 
         foreach ($statuses as $key => $status) {
-            $input['status'] = $key;
-            $array['statuses']['items'][] = ['label' => $status, 'parameter' => $input];
+            $array['statuses']['items'][] = ['label' => $status];
         }
-        unset($input['status']);
-        $array['statuses']['items'][] = ['label' => 'All', 'parameter' => $input];
 
         return $array;
     }

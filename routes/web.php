@@ -34,6 +34,7 @@ Route::middleware(['auth'])->group(function (){
         Route::post('/tasks/addTask', [TaskController::class, 'storeTask'])->name('addPost');
         Route::post('/tasks/editTask', [TaskController::class, 'storeTask'])->name('editPost');
         Route::get('/tasks/list/{parameters?}', [TaskController::class, 'index'])->name('list');
+        Route::delete('/tasks/delete', [TaskController::class, 'delete'])->name('delete');
     });
 
     Route::name('user.')->group(function () {

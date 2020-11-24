@@ -6,6 +6,7 @@ use App\Enums\TaskStatus;
 use App\Traits\ProjectAndPaymentSystem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use \Validator;
 use Illuminate\Database\Eloquent\Model;
 
@@ -41,23 +42,33 @@ class Task extends Model
      */
     public static function getUsersTasks($userId, $parameters = [])
     {
-        $status = '';
-        if (isset($parameters['status'])) {
-            $status = TaskStatus::fromKey($parameters['status']);
+        $statuses = [];
+        //dd($parameters['statuses']);
+        if (isset($parameters['statuses'])) {
+            if (is_array($parameters['statuses'])) {
+                foreach ($parameters['statuses'] as $status) {
+                    $statuses[] = $status;
+                }
+            } else {
+                $statuses[] = $parameters['statuses'];
+            }
         } else {
-            $status = TaskStatus::Pending();
+            $statuses[] = TaskStatus::Pending()->value;
         }
+
         $user = User::find($userId);
 
         $task = new Task();
 
-        $task = $status ? $task->where('status', $status) : $task;
-        $task = isset($parameters['project'])  ? $task->where('projectId', $parameters['project']) : $task;
-        $task = isset($parameters['category']) ? $task->where('category', $parameters['category']) : $task;
-        $task = isset($parameters['payment'])  ? $task->where('paymentSystemId', $parameters['payment']) : $task;
+        $task = $statuses ? $task->whereIn('status', $statuses) : $task;
+        $task = isset($parameters['projects'])  ? $task->whereIn('projectId', (array)$parameters['projects']) : $task;
+        $task = isset($parameters['categories']) ? $task->whereIn('category', (array)$parameters['categories']) : $task;
+        $task = isset($parameters['payments'])  ? $task->whereIn('paymentSystemId', (array)$parameters['payments']) : $task;
+        $task = isset($parameters['date-from']) ? $task->whereDate('created_at', '>', $parameters['date-from']) : $task;
+        $task = isset($parameters['date-to']) ? $task->whereDate('created_at', '<', $parameters['date-to']) : $task;
 
         if ($user->hasPermission('view_all_task') && isset($parameters['user'])) {
-            $task = $task->where('fromId', $parameters['user']);
+            $task = $task->whereIn('fromId', (array)$parameters['users']);
         } else {
             $task = $task->where('fromId', $userId);
         }
@@ -75,11 +86,13 @@ class Task extends Model
      */
     public static function getCurrentFilters(Request $request)
     {
-        $result['user'] = !empty($request->input('user')) ? User::find($request->user) : null;
-        $result['project'] = !empty($request->input('project')) ? Project::find($request->project) : null;
-        $result['payment'] = !empty($request->input('payment')) ? PaymentSystem::find($request->payment) : null;
-        $result['category'] = !empty($request->input('category')) ? TaskCategory::find($request->category) : null;
-        $result['status'] = !empty($request->input('status')) ? TaskCategory::find($request->status) : null;
+        $result['users'] = !empty($request->input('users')) ? (array)$request->input('users') : [];
+        $result['projects'] = !empty($request->input('projects')) ? (array)$request->input('projects') : [];
+        $result['payments'] = !empty($request->input('payments')) ? (array)$request->input('payments') : [];
+        $result['categories'] = !empty($request->input('categories')) ? (array)$request->input('categories') : [];
+        $result['statuses'] = !empty($request->input('statuses')) ? (array)$request->input('statuses') : [];
+        $result['date-from'] = !empty($request->input('date-from')) ? $request->input('date-from') : null;
+        $result['date-to'] = !empty($request->input('date-to')) ? $request->input('date-to') : null;
 
         return $result;
     }
@@ -139,6 +152,17 @@ class Task extends Model
         $task->status = $taskStatus->key;
         $task->category = $request->category;
         return $task->save();
+    }
+
+    public function deleteTask()
+    {
+        if ($this->id) {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            $this->delete();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            return true;
+        }
+        return true;
     }
 
 }

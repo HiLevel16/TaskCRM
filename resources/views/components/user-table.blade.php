@@ -18,7 +18,7 @@
                         <div class="d-flex float-right">
                             <form class="mr-1" id="delete_{{$user->id}}" action="{{route('user.delete')}}" method="POST">
                                 {{ csrf_field() }}
-                                <input type="hidden" name="_method" value="delete" />
+                                @method('DELETE')
                                 <input type="hidden" name="id" value="{{$user->id}}" />
                                 <a href="#" onclick="
                                 document.getElementById('delete_{{$user->id}}').submit();
